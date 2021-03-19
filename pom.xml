@@ -13,11 +13,15 @@
             <artifactId>json</artifactId>
             <version>20201115</version>
         </dependency>
+
     </dependencies>
 
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
+        <sonar.projectKey>redjack96_RampartProcessControlChart</sonar.projectKey>
+        <sonar.organization>redjack96</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
 </project>
