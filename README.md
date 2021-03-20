@@ -14,9 +14,8 @@ stabilità del numero di ticket Jira risolti per il progetto Apache Ramport, att
 > numero di bug. Un altro possibile motivo è che in quel mese il team di sviluppo abbia deciso di
 > dedicarsi al fixing dei bug del progetto, per poterne migliorare la qualità. Il lower bound è stato 
 > portato a 0 perché un numero negativo di ticket risolti non ha senso.
-
-Per raggruppare il numero di ticket per ogni mese è stata utilizzata la funzionalità Excel "Tabella Pivot".
-Dal grafico sono stati esclusi i mesi che avevano un numero di ticket risolti pari a zero.
+> Per raggruppare il numero di ticket per ogni mese è stata utilizzata la funzionalità Excel "Tabella Pivot".
+> Dal grafico sono stati esclusi i mesi che avevano un numero di ticket risolti pari a zero.
 ---
 
 ## Struttura del deliverable
