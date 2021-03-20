@@ -11,7 +11,8 @@ import java.util.logging.Level;
 
 public class RetrieveTicketsID {
 
-    private RetrieveTicketsID(){}
+    private RetrieveTicketsID() {
+    }
 
     private static String readAll(Reader rd) throws IOException {
         StringBuilder sb = new StringBuilder();
@@ -41,7 +42,7 @@ public class RetrieveTicketsID {
     public static void doWork(String projName) throws IOException {
         int j;
         int i = 0;
-        int total = 1;
+        int total;
         //Get JSON API for closed bugs w/ AV in the project
         do {
             //Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
@@ -50,7 +51,7 @@ public class RetrieveTicketsID {
                     "jql=project=%22" + projName +                   // Nome del progetto
                     "%22AND(%22status%22=%22closed%22OR%22status%22=%22resolved%22)" +  // solo i ticket con status == closed or status == resolved
                     "AND%22resolution%22=%22fixed%22" +              // solo i ticket con resolution == fixed
-                    "%20ORDER%20BY%20key%20ASC"+                     // [NEW] Ordinamento crescente
+                    "%20ORDER%20BY%20key%20ASC" +                     // [NEW] Ordinamento crescente
                     "&fields=key,resolutiondate,versions,created" +  // campi da includere nel risultato JSON
                     "&startAt=" + i +                                // indice iniziale da cui stampare
                     "&maxResults=" + j;                              // numero massimo di risultati (1000)
@@ -59,8 +60,10 @@ public class RetrieveTicketsID {
             total = json.getInt("total");
             for (; i < total && i < j; i++) {
                 //Iterate through each bug
+                String resolutionDate = issues.getJSONObject(i % 1000).getJSONObject("fields").getString("resolutiondate");
                 String key = issues.getJSONObject(i % 1000).get("key").toString();
-                MyLogger.get().log(Level.INFO, key);
+                String message = key + " - " + resolutionDate;
+                MyLogger.get().log(Level.INFO, message);
             }
         } while (i < total);
     }
