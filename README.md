@@ -13,7 +13,7 @@ stabilità del numero di ticket Jira risolti per il progetto Apache Ramport, att
 > nel periodo precedente sono state implementate nuove feature che hanno introdotto un elevato 
 > numero di bug. Un altro possibile motivo è che in quel mese il team di sviluppo abbia deciso di
 > dedicarsi al fixing dei bug del progetto, per poterne migliorare la qualità. Il lower bound è stato 
-> portato a 0 perché un numero negativo di ticket risolti non ha senso.
+> portato a 0 perché risulta essere un numero negativo, che per i ticket risolti non ha senso.
 > Per raggruppare il numero di ticket per ogni mese è stata utilizzata la funzionalità Excel "Tabella Pivot".
 > Dal grafico sono stati esclusi i mesi che avevano un numero di ticket risolti pari a zero.
 ---
@@ -21,9 +21,7 @@ stabilità del numero di ticket Jira risolti per il progetto Apache Ramport, att
 ## Struttura del deliverable
 La repository contiene un progetto Maven che include le dipendenze per JSON e le configurazioni per SonarCloud.
 L'analisi di SonarCloud è stata impostata tramite github action e avviene a ogni commit/pull-request
-Il link per il progetto SonarCloud collegato a questa repository è il seguente
-
-    https://sonarcloud.io/dashboard?id=redjack96_RampartProcessControlChart
+Per il progetto SonarCloud collegato a questa repository cliccare [qui](https://sonarcloud.io/dashboard?id=redjack96_RampartProcessControlChart)
 
 Sono inclusi nella repository
 - il codice senza code-smells
