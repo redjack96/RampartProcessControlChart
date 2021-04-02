@@ -7,9 +7,11 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RetrieveTicketsID {
+
+    private static final Logger logger = Logger.getLogger(RetrieveTicketsID.class.getName());
 
     private RetrieveTicketsID() {
     }
@@ -63,7 +65,7 @@ public class RetrieveTicketsID {
                 String resolutionDate = issues.getJSONObject(i % 1000).getJSONObject("fields").getString("resolutiondate");
                 String key = issues.getJSONObject(i % 1000).get("key").toString();
                 String message = key + " - " + resolutionDate;
-                MyLogger.get().log(Level.INFO, message);
+                logger.info(message);
             }
         } while (i < total);
     }
