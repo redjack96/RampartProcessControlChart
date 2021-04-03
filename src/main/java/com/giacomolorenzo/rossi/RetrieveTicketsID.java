@@ -1,5 +1,6 @@
 package com.giacomolorenzo.rossi;
 
+import com.opencsv.CSVWriter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,6 +9,8 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RetrieveTicketsID {
 
@@ -41,20 +44,22 @@ public class RetrieveTicketsID {
         }
     }
 
-    public static void doWork(String projName) {
+    public static String writeFixedIssues() {
         int j;
         int i = 0;
         int total;
+        String projName = PropertyManager.loadProperties().getProperty("project");
         File file = new File(projName + "-TicketsID.csv");
         if(!file.exists()) {
             try {
                 if(file.createNewFile()) logger.info(file.getName() + "Created");
             } catch (IOException e) {
                 e.printStackTrace();
-                return;
+                return "";
             }
         }
-        try (FileWriter fileWriter = new FileWriter(file)){
+        try (CSVWriter csvWriter = new CSVWriter(new BufferedWriter(new FileWriter(file)),
+                ';', CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END)){
             //Get JSON API for closed bugs w/ AV in the project
             do {
                 //Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
@@ -70,16 +75,28 @@ public class RetrieveTicketsID {
                 JSONObject json = readJsonFromUrl(url);
                 JSONArray issues = json.getJSONArray("issues");
                 total = json.getInt("total");
+
+                csvWriter.writeNext(new String[]{"key", "resolutionDate"});
                 for (; i < total && i < j; i++) {
                     //Iterate through each bug
-                    String resolutionDate = issues.getJSONObject(i % 1000).getJSONObject("fields").getString("resolutiondate");
+                    String resolutionDateJira = issues.getJSONObject(i % 1000).getJSONObject("fields").getString("resolutiondate");
+                    // Pattern-Matching della data
+                    Pattern datePattern = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}");
+                    Matcher dateMatcher = datePattern.matcher(resolutionDateJira);
+                    String resolutionDate = resolutionDateJira;
+                    if(dateMatcher.find()) {
+                        resolutionDate = dateMatcher.group(0);
+                    } else{
+                        String messaggio = "pattern non trovato per " + resolutionDateJira;
+                        logger.warning(messaggio);
+                    }
                     String key = issues.getJSONObject(i % 1000).get("key").toString();
-                    String message = key + "," + resolutionDate;
-                    fileWriter.append(message).append("\n");
+                    csvWriter.writeNext(new String[]{key, resolutionDate});
                 }
             } while (i < total);
         } catch(IOException io){
             io.printStackTrace();
         }
+        return file.getName();
     }
 }

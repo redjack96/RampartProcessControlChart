@@ -45,7 +45,7 @@ public class SvnManager implements VcsManager {
     }
 
     @Override
-    public void writeCommit() {
+    public void writeCommitWithTickedID() {
         String projectName = properties.getProperty("project");
         try (FileWriter fileWriter = new FileWriter(projectName + "-commits.csv")) {
 

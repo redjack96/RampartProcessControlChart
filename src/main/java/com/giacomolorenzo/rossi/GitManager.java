@@ -1,5 +1,6 @@
 package com.giacomolorenzo.rossi;
 
+import com.opencsv.CSVWriter;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
@@ -7,25 +8,29 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.DateFormat;
+import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GitManager implements VcsManager {
     private static final Logger logger = Logger.getLogger(GitManager.class.getName());
     private static final String GIT_DIRECTORY = "gitDir";
     private static final String FILE_DIR = "gitFile";
     private final Properties properties = PropertyManager.loadProperties();
+    private final String fixedTicketsFileName;
     private Repository repository;
     private Git git;
 
-    public GitManager() {
+    public GitManager(boolean online, String fixedTicketsFileName) {
+        if (online) {
+            initializeRemote();
+        }
         initialize();
+        this.fixedTicketsFileName = fixedTicketsFileName;
     }
 
     private void initialize() {
@@ -37,6 +42,25 @@ public class GitManager implements VcsManager {
                     .build();
             this.git = Git.open(new File(properties.getProperty(FILE_DIR)));
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeRemote() {
+        try {
+            File gitDirectory = new File(properties.getProperty(GIT_DIRECTORY));
+            if (!gitDirectory.exists()) {
+                boolean mkdir = gitDirectory.mkdir();
+                if (!mkdir) throw new IOException();
+                logger.info("Sto clonando il repository Git per il progetto RAMPART!");
+                Git.cloneRepository()
+                        .setURI("https://github.com/apache/rampart.git")
+                        .setDirectory(gitDirectory)
+                        .call();
+                logger.info("Repository Git clonato con successo!");
+            }
+            this.git = Git.open(new File(properties.getProperty(FILE_DIR)));
+        } catch (IOException | GitAPIException e) {
             e.printStackTrace();
         }
     }
@@ -53,18 +77,92 @@ public class GitManager implements VcsManager {
         }
     }
 
-    public void writeCommit() {
-        String message = "Writing commits of repo: " + repository;
-        logger.info(message);
-        File output = new File("git-log.txt");
-        try(FileWriter fileWriter = new FileWriter(output.getAbsolutePath())){
-            Iterable<RevCommit> commits = git.log().all().call();
-            for (RevCommit revCommit: commits) {
-                fileWriter.append("DATE: ");
-                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                fileWriter.append(dateFormat.format(revCommit.getAuthorIdent().getWhen()))
-                        .append(" - ").append("COMMIT: ").append(revCommit.getFullMessage());
+    public void writeCommitWithTickedID() {
+        String projectName = properties.getProperty("project");
+        String messageToLog = "Writing commits of repo: " + repository;
+        logger.info(messageToLog);
+        try (CSVWriter csvWriter = new CSVWriter(new BufferedWriter(new FileWriter(projectName + "-git-commits.csv")),
+                ';', CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END)) {
+            csvWriter.writeNext(new String[]{"ticketID,commitDate,hasFixedTicket"});
+            Iterable<RevCommit> logEntries = git.log().all().call();
+            for (RevCommit logEntry : logEntries) {
+                List<String> ticketIds = new ArrayList<>();
+                Date date = logEntry.getCommitterIdent().getWhen();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String dateFormatted = simpleDateFormat.format(date); // da stampare
+                String message = logEntry.getFullMessage();
+                // Cerco gli Id dei ticket nel messaggio di commit
+                Pattern pattern = Pattern.compile("RAMPART-[0-9]*");
+                Matcher matcher = pattern.matcher(message);
+
+                while (matcher.find()) {
+                    ticketIds.add(matcher.group(0)); // ognuno di questi e' da stampare
+                }
+                for (String ticketId : ticketIds) {
+
+                    String thereIs = hasFixedTicket(ticketId);
+                    String[] row = new String[]{ticketId, dateFormatted, thereIs};
+                    csvWriter.writeNext(row);
+                }
             }
+        } catch (IOException | GitAPIException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Controlla se il ticketId presente nel commit si riferisce a un fixed ticket
+     *
+     * @param ticketId presente nel commit
+     * @return true se si riferisce a un fixed ticket nel file fixedTicketsFileName.
+     */
+    private String hasFixedTicket(String ticketId) {
+        boolean hasFixedTicket = false;
+        try (FileReader fileReader = new FileReader(fixedTicketsFileName)) {
+            StringWriter s = new StringWriter();
+            long result = fileReader.transferTo(s);
+            String fileContents = s.toString();
+            if (result == 0) return Boolean.toString(false);
+            else if (fileContents.contains(ticketId) || fileContents.contains(ticketId.toLowerCase(Locale.ROOT))
+                    || fileContents.contains(ticketId.substring(0,1).toUpperCase(Locale.ROOT)+ticketId.substring(1))) {
+                hasFixedTicket = true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Boolean.toString(hasFixedTicket);
+    }
+
+    public void writeMonthsWithNumberOfCommits() {
+        String projectName = properties.getProperty("project");
+        String messageToLog = "Writing commits of repo: " + repository;
+        logger.info(messageToLog);
+        try (CSVWriter csvWriter = new CSVWriter(new BufferedWriter(new FileWriter(projectName + "-commit-months.csv")),
+                ';', CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END)) {
+            Iterable<RevCommit> logEntries = git.log().all().call();
+            Map<String, Integer> mesiConNumeroCommit = new HashMap<>();
+            for (RevCommit logEntry : logEntries) {
+                Date date = logEntry.getCommitterIdent().getWhen();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM");
+                String dateFormatted = simpleDateFormat.format(date); // da stampare
+                if(!mesiConNumeroCommit.containsKey(dateFormatted)){
+                    mesiConNumeroCommit.put(dateFormatted, 1); // se il mese non era presente, lo aggiungiamo.
+                } else {
+                    int numeroCommit = mesiConNumeroCommit.get(dateFormatted);
+                    numeroCommit++;
+                    mesiConNumeroCommit.put(dateFormatted, numeroCommit);
+                }
+            }
+            // scrivo l'header del csv
+            csvWriter.writeNext(new String[]{"commitMonth,commits"});
+
+            List<String[]> listaDeiMesiConNumeroCommit = mesiConNumeroCommit.entrySet()
+                    .stream()
+                    .map(stringIntegerEntry -> new String[]{stringIntegerEntry.getKey(), stringIntegerEntry.getValue().toString()})
+                    .collect(Collectors.toList());
+
+            // ora scrivo tutte le righe nel commit-months.csv
+            csvWriter.writeAll(listaDeiMesiConNumeroCommit);
         } catch (IOException | GitAPIException e) {
             e.printStackTrace();
         }

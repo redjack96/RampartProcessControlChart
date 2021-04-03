@@ -17,7 +17,7 @@ public class GetReleaseInfo {
 
     private static HashMap<LocalDateTime, String> releaseNames;
     private static HashMap<LocalDateTime, String> releaseID;
-    private static ArrayList<LocalDateTime> releases;
+    private static ArrayList<LocalDateTime> releaseDates;
 
     private GetReleaseInfo(){
     }
@@ -25,7 +25,7 @@ public class GetReleaseInfo {
     public static void writeReleaseInfo(String projName) {
         // Fills the arraylist with releases dates and orders them
         // Ignores releases with missing dates
-        releases = new ArrayList<>();
+        releaseDates = new ArrayList<>();
         int i;
         String url = "https://issues.apache.org/jira/rest/api/2/project/" + projName;
         JSONObject json;
@@ -50,24 +50,24 @@ public class GetReleaseInfo {
         }
         // order releases by date
         // @Override
-        releases.sort(Comparator.naturalOrder());
+        releaseDates.sort(Comparator.naturalOrder());
 
-        if (releases.size() < 6) return;
+        if (releaseDates.size() < 6) return;
 
-        String outname = projName + "VersionInfo.csv";
+        String outname = projName + "-VersionInfo.csv";
         try(FileWriter fileWriter = new FileWriter(outname)) {
             // Name of CSV for output
             fileWriter.append("Index,Version ID,Version Name,Date");
             fileWriter.append("\n");
-            for (i = 0; i < releases.size(); i++) {
+            for (i = 0; i < releaseDates.size(); i++) {
                 int index = i + 1;
                 fileWriter.append(Integer.toString(index));
                 fileWriter.append(",");
-                fileWriter.append(releaseID.get(releases.get(i)));
+                fileWriter.append(releaseID.get(releaseDates.get(i)));
                 fileWriter.append(",");
-                fileWriter.append(releaseNames.get(releases.get(i)));
+                fileWriter.append(releaseNames.get(releaseDates.get(i)));
                 fileWriter.append(",");
-                fileWriter.append(releases.get(i).toString());
+                fileWriter.append(releaseDates.get(i).toString());
                 fileWriter.append("\n");
             }
             fileWriter.flush();
@@ -79,8 +79,8 @@ public class GetReleaseInfo {
     public static void addRelease(String strDate, String name, String id) {
         LocalDate date = LocalDate.parse(strDate);
         LocalDateTime dateTime = date.atStartOfDay();
-        if (!releases.contains(dateTime))
-            releases.add(dateTime);
+        if (!releaseDates.contains(dateTime))
+            releaseDates.add(dateTime);
         releaseNames.put(dateTime, name);
         releaseID.put(dateTime, id);
     }
