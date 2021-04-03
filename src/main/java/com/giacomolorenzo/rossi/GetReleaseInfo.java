@@ -28,7 +28,7 @@ public class GetReleaseInfo {
         releases = new ArrayList<>();
         int i;
         String url = "https://issues.apache.org/jira/rest/api/2/project/" + projName;
-        JSONObject json = null;
+        JSONObject json;
         try {
             json = readJsonFromUrl(url);
             JSONArray versions = json.getJSONArray("versions");

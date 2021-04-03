@@ -19,7 +19,7 @@ public class PropertyManager {
                 properties = new Properties();
                 if (input == null){
                     logger.severe("Impossibile trovare il file config.properties");
-                    return null;
+                    return properties;
                 }
                 properties.load(input);
             } catch (IOException e) {

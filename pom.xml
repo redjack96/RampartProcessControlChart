@@ -23,6 +23,16 @@
             <artifactId>org.eclipse.jgit</artifactId>
             <version>5.10.0.202012080955-r</version>
         </dependency>
+        <dependency>
+            <groupId>org.tmatesoft.svnkit</groupId>
+            <artifactId>svnkit</artifactId>
+            <version>1.10.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>4.0</version>
+        </dependency>
 
     </dependencies>
 

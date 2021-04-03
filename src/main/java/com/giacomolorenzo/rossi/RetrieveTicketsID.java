@@ -45,7 +45,7 @@ public class RetrieveTicketsID {
         int j;
         int i = 0;
         int total;
-        File file = new File(projName + "TicketsID");
+        File file = new File(projName + "-TicketsID.csv");
         if(!file.exists()) {
             try {
                 if(file.createNewFile()) logger.info(file.getName() + "Created");
@@ -74,7 +74,7 @@ public class RetrieveTicketsID {
                     //Iterate through each bug
                     String resolutionDate = issues.getJSONObject(i % 1000).getJSONObject("fields").getString("resolutiondate");
                     String key = issues.getJSONObject(i % 1000).get("key").toString();
-                    String message = key + " - " + resolutionDate;
+                    String message = key + "," + resolutionDate;
                     fileWriter.append(message).append("\n");
                 }
             } while (i < total);

@@ -20,12 +20,11 @@ public class GitManager implements VcsManager {
     private static final Logger logger = Logger.getLogger(GitManager.class.getName());
     private static final String GIT_DIRECTORY = "gitDir";
     private static final String FILE_DIR = "gitFile";
-    private final Properties properties;
+    private final Properties properties = PropertyManager.loadProperties();
     private Repository repository;
     private Git git;
 
-    public GitManager(Properties properties) {
-        this.properties = properties;
+    public GitManager() {
         initialize();
     }
 
