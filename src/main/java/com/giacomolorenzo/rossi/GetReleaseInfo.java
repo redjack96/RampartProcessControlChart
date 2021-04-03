@@ -22,26 +22,31 @@ public class GetReleaseInfo {
     private GetReleaseInfo(){
     }
 
-    public static void writeReleaseInfo(String projName) throws IOException {
+    public static void writeReleaseInfo(String projName) {
         // Fills the arraylist with releases dates and orders them
         // Ignores releases with missing dates
         releases = new ArrayList<>();
         int i;
         String url = "https://issues.apache.org/jira/rest/api/2/project/" + projName;
-        JSONObject json = readJsonFromUrl(url);
-        JSONArray versions = json.getJSONArray("versions");
-        releaseNames = new HashMap<>();
-        releaseID = new HashMap<>();
-        for (i = 0; i < versions.length(); i++) {
-            String name = "";
-            String id = "";
-            if (versions.getJSONObject(i).has("releaseDate")) {
-                if (versions.getJSONObject(i).has("name"))
-                    name = versions.getJSONObject(i).get("name").toString();
-                if (versions.getJSONObject(i).has("id"))
-                    id = versions.getJSONObject(i).get("id").toString();
-                addRelease(versions.getJSONObject(i).get("releaseDate").toString(), name, id);
+        JSONObject json = null;
+        try {
+            json = readJsonFromUrl(url);
+            JSONArray versions = json.getJSONArray("versions");
+            releaseNames = new HashMap<>();
+            releaseID = new HashMap<>();
+            for (i = 0; i < versions.length(); i++) {
+                String name = "";
+                String id = "";
+                if (versions.getJSONObject(i).has("releaseDate")) {
+                    if (versions.getJSONObject(i).has("name"))
+                        name = versions.getJSONObject(i).get("name").toString();
+                    if (versions.getJSONObject(i).has("id"))
+                        id = versions.getJSONObject(i).get("id").toString();
+                    addRelease(versions.getJSONObject(i).get("releaseDate").toString(), name, id);
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         // order releases by date
         // @Override
