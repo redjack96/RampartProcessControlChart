@@ -1,4 +1,4 @@
-ticketID,commitDate,hasFixedTicket
+ticketID;commitDate;hasFixedTicket
 RAMPART-446;2019-03-08;true
 RAMPART-440;2017-04-19;true
 RAMPART-402;2017-02-06;false

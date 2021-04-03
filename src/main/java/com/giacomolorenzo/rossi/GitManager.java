@@ -79,11 +79,11 @@ public class GitManager implements VcsManager {
 
     public void writeCommitWithTickedID() {
         String projectName = properties.getProperty("project");
-        String messageToLog = "Writing commits of repo: " + repository;
+        String messageToLog = "Writing commits of " + repository;
         logger.info(messageToLog);
         try (CSVWriter csvWriter = new CSVWriter(new BufferedWriter(new FileWriter(projectName + "-git-commits.csv")),
                 ';', CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END)) {
-            csvWriter.writeNext(new String[]{"ticketID,commitDate,hasFixedTicket"});
+            csvWriter.writeNext(new String[]{"ticketID","commitDate","hasFixedTicket"});
             Iterable<RevCommit> logEntries = git.log().all().call();
             for (RevCommit logEntry : logEntries) {
                 List<String> ticketIds = new ArrayList<>();
@@ -135,7 +135,7 @@ public class GitManager implements VcsManager {
 
     public void writeMonthsWithNumberOfCommits() {
         String projectName = properties.getProperty("project");
-        String messageToLog = "Writing commits of repo: " + repository;
+        String messageToLog = "Writing commits of " + repository;
         logger.info(messageToLog);
         try (CSVWriter csvWriter = new CSVWriter(new BufferedWriter(new FileWriter(projectName + "-commit-months.csv")),
                 ';', CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END)) {
@@ -154,7 +154,7 @@ public class GitManager implements VcsManager {
                 }
             }
             // scrivo l'header del csv
-            csvWriter.writeNext(new String[]{"commitMonth,commits"});
+            csvWriter.writeNext(new String[]{"commitMonth","commits"});
 
             List<String[]> listaDeiMesiConNumeroCommit = mesiConNumeroCommit.entrySet()
                     .stream()
