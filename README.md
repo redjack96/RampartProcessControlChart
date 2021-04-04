@@ -4,6 +4,11 @@
 Il progetto consiste nel ricavare informazioni dalla piattaforma Jira per poter valutare la
 stabilità del numero di ticket Jira risolti per il progetto Apache Ramport, attraverso un Process Control Chart.
 
+
+Nota: Su Jira era presente il repository del progetto RAMPART, gestito da SVN, ma sono riuscito a trovare un Mirror GitHub 
+per utilizzare i comandi di git attraverso la libreria JGit. E' presente anche una classe che utilizza la libreria SVNKit per ricavare 
+la storia presente nella repo SVN. Purtroppo i contenuti della svn history sono molto limitati, quindi ho preferito utilizzare il repo GitHub.
+
 ---
 
 ![Process-Control-Chart-Rampart](pcc.png)
@@ -29,6 +34,6 @@ Per il progetto SonarCloud collegato a questa repository cliccare [qui](https://
 
 Sono inclusi nella repository
 - il codice senza code-smells
-- il csv ricavato a partire dall'output del progetto
+- vari csv prodotti dalle repository Git, SVN e da Jira
 - il file excel contenente il Process-Control-Chart dei fixed ticket per il progetto Apache Rampart
 

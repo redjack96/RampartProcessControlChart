@@ -16,6 +16,9 @@ public class Main {
         System.setProperty("java.util.lkogging.SimpleFormatter.format", "[%1$tF %1$tT] %2$s() %4$s: %5$s%6$s%n");
         logger.info("Proprieta caricate con successo");
 
+        SvnManager svn = new SvnManager();
+        svn.writeCommitWithTickedID();
+
 
         // Ottengo gli ID dei ticket con risoluzione fixed. Crea RAMPART-TicketsID.csv con colonne:
         //                      TicketID,ResolutionDate

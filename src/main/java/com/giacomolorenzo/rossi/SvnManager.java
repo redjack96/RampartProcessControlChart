@@ -47,7 +47,7 @@ public class SvnManager implements VcsManager {
     @Override
     public void writeCommitWithTickedID() {
         String projectName = properties.getProperty("project");
-        try (FileWriter fileWriter = new FileWriter(projectName + "-commits.csv")) {
+        try (FileWriter fileWriter = new FileWriter(projectName + "-svn-commits.csv")) {
 
             var logEntries = repository.log(new String[]{""}, null, 0, -1, true, true);
             for (Object object : logEntries) {
