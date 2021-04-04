@@ -12,19 +12,25 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
+/**
+ * Classe utilizzata per generare le release. Poiché sono solo 13 l'output non e' stato utilizzato.
+ */
 public class GetReleaseInfo {
 
     private static HashMap<LocalDateTime, String> releaseNames;
     private static HashMap<LocalDateTime, String> releaseID;
     private static ArrayList<LocalDateTime> releaseDates;
+    private static final Logger logger = Logger.getLogger(GetReleaseInfo.class.getName());
 
     private GetReleaseInfo(){
     }
 
-    public static void writeReleaseInfo(String projName) {
+    public static void writeReleaseInfo() {
         // Fills the arraylist with releases dates and orders them
         // Ignores releases with missing dates
+        String projName = PropertyManager.loadProperties().getProperty("project");
         releaseDates = new ArrayList<>();
         int i;
         String url = "https://issues.apache.org/jira/rest/api/2/project/" + projName;
@@ -46,7 +52,7 @@ public class GetReleaseInfo {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warning("Impossibile leggere il file json dall'url");
         }
         // order releases by date
         // @Override
@@ -72,7 +78,7 @@ public class GetReleaseInfo {
             }
             fileWriter.flush();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warning("Impossibile scrivere le release sul file csv");
         }
     }
 

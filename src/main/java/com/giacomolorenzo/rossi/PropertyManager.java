@@ -23,7 +23,7 @@ public class PropertyManager {
                 }
                 properties.load(input);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.severe("Impossibile caricare le proprieta'");
             }
         }
         return properties;

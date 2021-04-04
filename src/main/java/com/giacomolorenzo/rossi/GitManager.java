@@ -42,7 +42,7 @@ public class GitManager implements VcsManager {
                     .build();
             this.git = Git.open(new File(properties.getProperty(FILE_DIR)));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe("Impossibile inizilizzare la repo locale Git");
         }
     }
 
@@ -61,7 +61,7 @@ public class GitManager implements VcsManager {
             }
             this.git = Git.open(new File(properties.getProperty(FILE_DIR)));
         } catch (IOException | GitAPIException e) {
-            e.printStackTrace();
+            logger.severe("Impossibile clonare la repo Git");
         }
     }
 
@@ -73,7 +73,7 @@ public class GitManager implements VcsManager {
             }
 
         } catch (GitAPIException gitAPIException) {
-            gitAPIException.printStackTrace();
+            logger.severe("Impossibile stampare i branch Git");
         }
     }
 
@@ -106,7 +106,7 @@ public class GitManager implements VcsManager {
                 }
             }
         } catch (IOException | GitAPIException e) {
-            e.printStackTrace();
+            logger.severe("Impossibile scrivere su file i commit Git");
         }
     }
 
@@ -128,7 +128,7 @@ public class GitManager implements VcsManager {
                 hasFixedTicket = true;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe("Impossibile verificare se il ticket "+ticketId+" contenuto nel messagio di Git commit e' un fixed ticket in Jira");
         }
         return Boolean.toString(hasFixedTicket);
     }
@@ -164,7 +164,7 @@ public class GitManager implements VcsManager {
             // ora scrivo tutte le righe nel commit-months.csv
             csvWriter.writeAll(listaDeiMesiConNumeroCommit);
         } catch (IOException | GitAPIException e) {
-            e.printStackTrace();
+            logger.severe("Impossibile scrivere su file i mesi con il numero di git commit per ciascuno");
         }
     }
 }

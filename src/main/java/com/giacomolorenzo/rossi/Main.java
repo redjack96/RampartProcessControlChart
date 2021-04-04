@@ -32,5 +32,8 @@ public class Main {
         gm.writeCommitWithTickedID();
         // poi scrivo tutti i mesi con almeno un commit
         gm.writeMonthsWithNumberOfCommits();
+
+        // Scrivo le release:
+        GetReleaseInfo.writeReleaseInfo();
     }
 }

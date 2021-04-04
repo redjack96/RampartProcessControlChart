@@ -54,7 +54,7 @@ public class RetrieveTicketsID {
             try {
                 if(file.createNewFile()) logger.info(file.getName() + "Created");
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.severe("Impossibile creare il file per i ticket fixed");
                 return "";
             }
         }
@@ -95,7 +95,7 @@ public class RetrieveTicketsID {
                 }
             } while (i < total);
         } catch(IOException io){
-            io.printStackTrace();
+            logger.severe("Impossibile scrivere i fixed tickets su file");
         }
         return file.getName();
     }

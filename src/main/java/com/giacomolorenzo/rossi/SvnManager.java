@@ -35,7 +35,7 @@ public class SvnManager implements VcsManager {
             repository = SVNRepositoryFactory.create(svnUrl);
 
         } catch (SVNException e) {
-            e.printStackTrace();
+            logger.severe("Impossibile inizializzare la repo SVN");
         }
     }
 
@@ -74,7 +74,7 @@ public class SvnManager implements VcsManager {
                 logger.info(messageToLog);
             }
         } catch (SVNException | IOException e) {
-            e.printStackTrace();
+            logger.severe("Impossibile scrivere il csv con i SVN commit");
         }
     }
 }
