@@ -15,7 +15,11 @@ stabilità del numero di ticket Jira risolti per il progetto Apache Ramport, att
 > dedicarsi al fixing dei bug del progetto, per poterne migliorare la qualità. Il lower bound è stato 
 > portato a 0 perché risulta essere un numero negativo, che per i ticket risolti non ha senso.
 > Per raggruppare il numero di ticket per ogni mese è stata utilizzata la funzionalità Excel "Tabella Pivot".
-> Dal grafico sono stati esclusi i mesi che avevano un numero di ticket risolti pari a zero.
+> - Dal grafico sono stati esclusi i mesi che avevano un numero di ticket risolti pari a zero.
+> - Sono stati esclusi anche tutti i mesi che non avevano almeno un git commit.
+> - In media in ogni mese sono stati eseguiti circa 50 commit
+> - In media in ogni mese sono stati risolti circa 5 tickets
+> - In totale i git commit effettuati sono circa 8000, ma di questi solo il 5% ha nel messaggio almeno un ticketID. Questo significa che il 95% della storia dei commit e' persa e non e' utilizzabile per individuare la buggyness delle classi.
 ---
 
 ## Struttura del deliverable
