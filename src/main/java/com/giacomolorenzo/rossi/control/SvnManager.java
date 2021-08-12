@@ -1,4 +1,4 @@
-package com.giacomolorenzo.rossi;
+package com.giacomolorenzo.rossi.control;
 
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;

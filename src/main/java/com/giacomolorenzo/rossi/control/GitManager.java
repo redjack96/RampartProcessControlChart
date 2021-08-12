@@ -1,5 +1,6 @@
-package com.giacomolorenzo.rossi;
+package com.giacomolorenzo.rossi.control;
 
+import com.giacomolorenzo.rossi.data.Project;
 import com.opencsv.CSVWriter;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -25,7 +26,7 @@ public class GitManager implements VcsManager {
     private Repository repository;
     private Git git;
 
-    public GitManager(boolean online, String fixedTicketsFileName) {
+    public GitManager(boolean online, String fixedTicketsFileName, Project project) {
         if (online) {
             initializeRemote();
         }

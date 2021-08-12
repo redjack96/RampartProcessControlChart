@@ -1,4 +1,4 @@
-package com.giacomolorenzo.rossi;
+package com.giacomolorenzo.rossi.control;
 
 public interface VcsManager {
 

@@ -1,4 +1,5 @@
 # RampartProcessControlChart
+## Rossi Giacomo Lorenzo - 0292400
 ##### Deliverable 1 - ISW2 2020-2021
 
 Il progetto consiste nel ricavare informazioni dalla piattaforma Jira per poter valutare la

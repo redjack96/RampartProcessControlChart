@@ -1,4 +1,6 @@
-package com.giacomolorenzo.rossi;
+package com.giacomolorenzo.rossi.control;
+
+import com.giacomolorenzo.rossi.app.Main;
 
 import java.io.IOException;
 import java.io.InputStream;

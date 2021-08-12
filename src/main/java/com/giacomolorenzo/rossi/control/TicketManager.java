@@ -1,5 +1,9 @@
-package com.giacomolorenzo.rossi;
+package com.giacomolorenzo.rossi.control;
 
+import com.giacomolorenzo.rossi.data.JiraTicket;
+import com.giacomolorenzo.rossi.data.Project;
+import com.giacomolorenzo.rossi.data.ProjectRelease;
+import com.giacomolorenzo.rossi.utils.DateUtils;
 import com.opencsv.CSVWriter;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -8,15 +12,18 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class RetrieveTicketsID {
+public class TicketManager {
 
-    private static final Logger logger = Logger.getLogger(RetrieveTicketsID.class.getName());
+    private static final Logger logger = Logger.getLogger(TicketManager.class.getName());
+    private final Project project;
 
-    private RetrieveTicketsID() {
+    public TicketManager(Project project) {
+        this.project = project;
     }
 
     private static String readAll(Reader rd) throws IOException {
@@ -44,23 +51,25 @@ public class RetrieveTicketsID {
         }
     }
 
-    public static String writeFixedIssues() {
+    // FIXME: non devo usare la resolution date ma semplicemente controllare se il commit ha l'id del ticket. Se non c'è lo scarto.
+    public List<JiraTicket> findAllTickets() {
         int j;
         int i = 0;
         int total;
-        String projName = PropertyManager.loadProperties().getProperty("project");
+        String projName = project.getName();
         File file = new File(projName + "-TicketsID.csv");
-        if(!file.exists()) {
+        List<JiraTicket> tickets = new ArrayList<>();
+        if (!file.exists()) {
             try {
-                if(file.createNewFile()) logger.info(file.getName() + "Created");
+                if (file.createNewFile()) logger.info(file.getName() + "Created");
             } catch (IOException e) {
                 logger.severe("Impossibile creare il file per i ticket fixed");
-                return "";
+                return tickets;
             }
         }
-        try (CSVWriter csvWriter = new CSVWriter(new BufferedWriter(new FileWriter(file)),
-                ';', CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END)){
-            //Get JSON API for closed bugs w/ AV in the project
+
+        //Get JSON API for closed bugs w/ AV in the project
+        try {
             do {
                 //Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
                 j = i + 1000;
@@ -69,34 +78,29 @@ public class RetrieveTicketsID {
                         "%22AND(%22status%22=%22closed%22OR%22status%22=%22resolved%22)" +  // solo i ticket con status == closed or status == resolved
                         "AND%22resolution%22=%22fixed%22" +              // solo i ticket con resolution == fixed
                         "%20ORDER%20BY%20key%20ASC" +                     // [NEW] Ordinamento crescente
-                        "&fields=key,resolutiondate,versions,created" +  // campi da includere nel risultato JSON
+                        "&fields=key,resolutiondate,versions,created,issuetype" +  // campi da includere nel risultato JSON
                         "&startAt=" + i +                                // indice iniziale da cui stampare
                         "&maxResults=" + j;                              // numero massimo di risultati (1000)
                 JSONObject json = readJsonFromUrl(url);
                 JSONArray issues = json.getJSONArray("issues");
                 total = json.getInt("total");
 
-                csvWriter.writeNext(new String[]{"key", "resolutionDate"});
                 for (; i < total && i < j; i++) {
                     //Iterate through each bug
                     String resolutionDateJira = issues.getJSONObject(i % 1000).getJSONObject("fields").getString("resolutiondate");
                     // Pattern-Matching della data
-                    Pattern datePattern = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}");
-                    Matcher dateMatcher = datePattern.matcher(resolutionDateJira);
-                    String resolutionDate = resolutionDateJira;
-                    if(dateMatcher.find()) {
-                        resolutionDate = dateMatcher.group(0);
-                    } else{
-                        String messaggio = "pattern non trovato per " + resolutionDateJira;
-                        logger.warning(messaggio);
-                    }
-                    String key = issues.getJSONObject(i % 1000).get("key").toString();
-                    csvWriter.writeNext(new String[]{key, resolutionDate});
+                    Date resolutionDate = DateUtils.getDateFromYearMonthDayString(resolutionDateJira);
+                    String ticketId = issues.getJSONObject(i % 1000).get("key").toString();
+                    JiraTicket jiraTicket = new JiraTicket(ticketId, project);
+                    jiraTicket.setResolution("fixed"); // perché li ho filtrati nella query
+                    jiraTicket.setType(issues.getJSONObject(i % 1000).getJSONObject("fields").getJSONObject("issuetype").getString("name"));
+                    jiraTicket.setResolutionDate(resolutionDate); // necessario per capire a quale release appartiene
+                    tickets.add(jiraTicket);
                 }
             } while (i < total);
-        } catch(IOException io){
-            logger.severe("Impossibile scrivere i fixed tickets su file");
+        } catch (IOException io) {
+            logger.severe("Impossibile trovare i fixed tickets");
         }
-        return file.getName();
+        return tickets;
     }
 }
