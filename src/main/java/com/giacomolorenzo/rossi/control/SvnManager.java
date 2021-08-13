@@ -1,26 +1,28 @@
 package com.giacomolorenzo.rossi.control;
 
+import com.giacomolorenzo.rossi.data.Commit;
+import com.giacomolorenzo.rossi.data.Project;
+import com.giacomolorenzo.rossi.utils.VcsUtils;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class SvnManager implements VcsManager {
+public class SvnManager {
 
     private final Properties properties = PropertyManager.loadProperties();
     private static final Logger logger = Logger.getLogger(SvnManager.class.getName());
+    private final Project project;
     private SVNRepository repository;
 
-    public SvnManager() {
+    public SvnManager(Project project) {
+        this.project = project;
         initialize();
     }
 
@@ -39,42 +41,21 @@ public class SvnManager implements VcsManager {
         }
     }
 
-    @Override
-    public void printBranches() {
-        logger.info("SVN non ha il concetto di branch");
-    }
+    public List<Commit> findAllRevisions() {
+        List<Commit> revisions = new ArrayList<>();
+        try {
+            var logEntries = repository.log(new String[]{""}, null, 0, -1, true, false);
 
-    @Override
-    public void writeCommitWithTickedID() {
-        String projectName = properties.getProperty("project");
-        try (FileWriter fileWriter = new FileWriter(projectName + "-svn-commits.csv")) {
-
-            var logEntries = repository.log(new String[]{""}, null, 0, -1, true, true);
-            for (Object object : logEntries) {
-                SVNLogEntry logEntry = (SVNLogEntry) object;
-                Date date = logEntry.getDate();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-                String dateFormatted = simpleDateFormat.format(date);
-                String message = logEntry.getMessage();
-                if (message.contains(properties.getProperty("project") + "-")) {
-                    List<String> ticketIds = new ArrayList<>();
-                    Pattern pattern = Pattern.compile(projectName + "-[0-9]*");
-                    Matcher matcher = pattern.matcher(message);
-
-                    Long revision = logEntry.getRevision();
-                    while (matcher.find()) {
-                        ticketIds.add(matcher.group(0));
-                    }
-                    for (String ticketId : ticketIds) {
-                        String commit = revision + "," + ticketId + "," + dateFormatted;
-                        fileWriter.append(commit).append("\n");
-                    }
-                }
-                String messageToLog = logEntry.getRevision() + "," + simpleDateFormat.format(logEntry.getDate()) + "," + message;
-                logger.info(messageToLog);
+            for (Object logEntry : logEntries) {
+                var svnLogEntry = (SVNLogEntry) logEntry;
+                List<String> ticketsFromCommitMessage = VcsUtils.getTicketsFromCommitMessage(svnLogEntry.getMessage(), project);
+                boolean hasFixedTicket = VcsUtils.hasFixedTicket(ticketsFromCommitMessage, project);
+                var c = new Commit(project, "svn", svnLogEntry.getDate(), String.valueOf(svnLogEntry.getRevision()), ticketsFromCommitMessage, hasFixedTicket);
+                revisions.add(c);
             }
-        } catch (SVNException | IOException e) {
-            logger.severe("Impossibile scrivere il csv con i SVN commit");
+        } catch (SVNException e) {
+            e.printStackTrace();
         }
+        return revisions;
     }
 }

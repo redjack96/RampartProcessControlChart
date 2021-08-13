@@ -2,9 +2,7 @@ package com.giacomolorenzo.rossi.control;
 
 import com.giacomolorenzo.rossi.data.JiraTicket;
 import com.giacomolorenzo.rossi.data.Project;
-import com.giacomolorenzo.rossi.data.ProjectRelease;
 import com.giacomolorenzo.rossi.utils.DateUtils;
-import com.opencsv.CSVWriter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,14 +33,6 @@ public class TicketManager {
         return sb.toString();
     }
 
-    public static JSONArray readJsonArrayFromUrl(String url) throws IOException, JSONException {
-        try (InputStream is = new URL(url).openStream()) {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-            String jsonText = readAll(rd);
-            return new JSONArray(jsonText);
-        }
-    }
-
     public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
         try (InputStream is = new URL(url).openStream()) {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
@@ -51,22 +41,16 @@ public class TicketManager {
         }
     }
 
-    // FIXME: non devo usare la resolution date ma semplicemente controllare se il commit ha l'id del ticket. Se non c'è lo scarto.
-    public List<JiraTicket> findAllTickets() {
+    /**
+     * Ricava tutti i ticket con resolution = fixed
+     * @return la lista di JiraTickets
+     */
+    public List<JiraTicket> findAllFixedTickets() {
         int j;
         int i = 0;
         int total;
         String projName = project.getName();
-        File file = new File(projName + "-TicketsID.csv");
         List<JiraTicket> tickets = new ArrayList<>();
-        if (!file.exists()) {
-            try {
-                if (file.createNewFile()) logger.info(file.getName() + "Created");
-            } catch (IOException e) {
-                logger.severe("Impossibile creare il file per i ticket fixed");
-                return tickets;
-            }
-        }
 
         //Get JSON API for closed bugs w/ AV in the project
         try {

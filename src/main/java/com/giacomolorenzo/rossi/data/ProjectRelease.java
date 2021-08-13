@@ -1,36 +1,30 @@
 package com.giacomolorenzo.rossi.data;
 
-import com.giacomolorenzo.rossi.utils.DateUtils;
 import lombok.Data;
 
-import java.util.*;
+import java.util.Date;
 
 @Data
-public class ProjectRelease extends Writable implements Readable{
+public class ProjectRelease extends Writable{
     private static final String RELEASE_FILE_SUFFIX = "-ReleaseInfo.csv";
-    int id;
-    Project project;
+    String project;
     int officialId;
     String releaseName;
+    int id;
     Date releaseDate;
     Date prevRelease;
     boolean firstVersion;
     boolean lastVersion;
 
-    /**
-     * Per i test
-     *
-     * @param project null
-     */
-    public ProjectRelease(Project project) {
-        this.project = project;
+    public ProjectRelease(Project project){
+        this.project = project.getName();
     }
 
     public ProjectRelease(int id, String releaseName, Date releaseDate, Project project) {
+        this.project = project.getName();
         this.id = id;
         this.releaseName = releaseName;
         this.releaseDate = releaseDate;
-        this.project = project;
     }
 
     /**
@@ -48,18 +42,6 @@ public class ProjectRelease extends Writable implements Readable{
             return true;
         }
         return commitDate.after(prevRelease) && commitDate.before(releaseDate);
-    }
-
-    public ProjectRelease loadFromCSV(String[] csvRow) {
-        var p = new ProjectRelease(project);
-        p.setId(Integer.parseInt(csvRow[0]));
-        p.setOfficialId(Integer.parseInt(csvRow[2]));
-        p.setReleaseName(csvRow[3]);
-        p.setReleaseDate(DateUtils.getDateFromYearMonthDayString(csvRow[4]));
-        p.setPrevRelease(csvRow[5].equals("null") ? null : DateUtils.getDateFromYearMonthDayString(csvRow[5]));
-        p.setFirstVersion(Boolean.parseBoolean(csvRow[6]));
-        p.setLastVersion(Boolean.parseBoolean(csvRow[7]));
-        return p;
     }
 
     public String getFileNameSuffix() {

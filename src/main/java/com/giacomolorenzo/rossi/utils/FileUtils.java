@@ -23,11 +23,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.giacomolorenzo.rossi.utils.Constants.CSV_SEPARATOR;
-import static com.giacomolorenzo.rossi.utils.Constants.CSV_SEPARATOR_STR;
 
 public class FileUtils {
     private static final Logger logger = Logger.getLogger(FileUtils.class.getName());

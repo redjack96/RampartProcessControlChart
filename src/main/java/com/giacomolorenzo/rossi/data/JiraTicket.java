@@ -1,33 +1,29 @@
 package com.giacomolorenzo.rossi.data;
 
 import com.giacomolorenzo.rossi.utils.DateUtils;
-import com.giacomolorenzo.rossi.utils.FileUtils;
-import com.giacomolorenzo.rossi.utils.ReleaseUtils;
 import lombok.Data;
 import lombok.NonNull;
 
-import java.util.ArrayList;
+import java.time.YearMonth;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Data
-public class JiraTicket extends Writable implements Readable{
+public class JiraTicket extends Writable{
     private static final String TICKET_FILE_SUFFIX = "-TicketInfo.csv";
-    Project project;
+    String project;
     String ticketID;
     String type;
     String resolution;
     Date resolutionDate; // necessario per capire a quale release appartiene.
 
     public JiraTicket(Project project){
-        this.project = project;
+        this.project = project.getName();
     }
 
     public JiraTicket(@NonNull String ticketID, Project project) {
+        this.project = project.getName();
         this.ticketID = ticketID;
-        this.project = project;
     }
 
     @Override
@@ -38,6 +34,10 @@ public class JiraTicket extends Writable implements Readable{
                 ", type='" + type + '\'' +
                 ", resolution='" + resolution + '\'' +
                 '}';
+    }
+
+    public boolean isInMonth(YearMonth ym){
+        return DateUtils.isInMonth(this.resolutionDate, ym);
     }
 
     public boolean equals(Object o) {
@@ -53,13 +53,6 @@ public class JiraTicket extends Writable implements Readable{
 
     public int hashCode() {
         return Objects.hash(ticketID);
-    }
-
-    public JiraTicket loadFromCSV(String[] riga) {
-        var jiraTicket = new JiraTicket(riga[1], project);
-        jiraTicket.setType(riga[2]);
-        jiraTicket.setResolution(riga[3]);
-        return jiraTicket;
     }
 
     public String getProjectName() {
