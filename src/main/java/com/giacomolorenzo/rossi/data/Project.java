@@ -57,10 +57,6 @@ public class Project {
         logger.info(() -> name + ": Commits Done ");
     }
 
-    public String toStringAll() {
-        return this.name + ": " + allReleases.size() + " releases e " + allFixedTickets.size() + " fixedBugs";
-    }
-
     public String toString() {
         return this.name;
     }
@@ -100,7 +96,7 @@ public class Project {
             pccData.setCommitInRelease(commitOfRelease.size());
             pccData.setVersionName(release.getReleaseName());
             pccData.setVersion(release.getId()); // dalla release
-            pccData.setFixedTicketWithCommit(fixedTicketWithCommit.size()); // ticket fixed da almeno un commit
+            pccData.setFixedTicketWithCommit(fixedTicketWithCommit.size()); // ticket fixed con almeno un commit
             pccDataList.add(pccData);
         }
 

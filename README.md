@@ -21,4 +21,4 @@ Sono inclusi nella repository
 - il codice senza code-smells
 - vari csv prodotti dalle repository Git, SVN e da Jira
 - il file excel contenente i Process-Control-Chart dei fixed ticket per il progetto Apache Rampart
-
+- il documento PowerPoint che contiene la relazione del deliverable
